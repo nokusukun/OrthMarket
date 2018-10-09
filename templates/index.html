@@ -24,17 +24,82 @@
 </head>
 
 <body ng-app="orthmarket" ng-controller="orthmarket-ctrl">
-
-	<div id="surface-confirm" class="custom-modal modal">
-		<div class="modal-content">
-			<h4 class="header"> Notification</h4>
-			<div class="content">
-				<p>Are you sure you want to surface? You still have <b class="green-text">1,203</b> stamina left.</p>
+	<div ng-show="noMetaMask" class="no-meta-mask valign-wrapper">
+		<div class="panel" style="max-width: 50vw; margin: auto;">
+			<div id="" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+				<span>Uhhh...</span>
+			</div>
+			<div id="" class="content">
+				<p>
+					You need to install <a href="https://metamask.io">MetaMask</a> to use <b>Orth Market</b></br>
+					- Noku
+				</p>
 			</div>
 		</div>
-		<div class="custom-modal modal-footer">
-			<a href="#!" ng-click="surface()" class="custom-modal custom-button-green waves-effect waves-green btn-flat">Yes</a>
-			<a href="#!" class="custom-modal custom-button-blue modal-close waves-effect waves-green btn-flat">Continue</a>
+	</div>
+	<div id="view-item" class="custom-modal modal">
+		<div class="modal-content" ng-hide="itemData">
+			<div class="progress">
+				<div class="indeterminate"></div>
+			</div>
+			<p>Downloading listing details...</p>
+		</div>
+		<div class="modal-content" ng-show="itemData">
+			<h4 class="header">{{itemData.data.name}}</h4>
+			<div class="content">
+				<div class="field">
+					<div class="label">Name:</div>
+					<div class="value">{{itemData._name}}</div>
+				</div>
+				<div class="field">
+					<div class="label">Owner:</div>
+					<div class="value">{{itemData._owner}}</div>
+				</div>
+				<div class="field">
+					<div class="label">Cost:</div>
+					<div class="value">{{itemData._value}} Orth</div>
+				</div>
+				<div class="field">
+					<div class="label">Signature:</div>
+					<div class="value">{{itemData._signature}}</div>
+				</div>
+
+				<div class="content-divider">Item Info</div>
+				<div class="field">
+					<div class="label">Equip:</div>
+					<div class="value"><b>{{itemData.data.equip}}</b></div>
+				</div>
+				<div class="field">
+					<div class="label">Description:</div>
+					<div class="value">{{itemData.data.desc}}</div>
+				</div>
+				<div class="field">
+					<div class="label">Stats:</div>
+					<div class="value item-data">
+						<div class="stats">
+							<div class="value" ng-repeat="stat in itemData.data.stats">
+								<b>{{stat.target}}</b>: {{stat.value}} ({{stat.multi}}x)
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<a id="downloadAnchorElem" style="display:none"></a>
+		<div class="custom-modal modal-footer" ng-show="itemData">
+			<a href="#!" ng-click="downloadJson(itemData)" class="custom-modal custom-button-blue modal-close waves-effect waves-green btn-flat">
+				Download
+			</a>
+			<a href="#!" ng-show="utilCanAfford(accountBalance, itemData._value) && itemData._owner != Account" ng-click="purchaseItem()" class="custom-modal custom-button-green waves-effect waves-green btn-flat">
+				Purchase (<b>{{itemData._value}} Orth</b>)
+			</a>
+			<a href="#!" ng-show="utilCantAfford(accountBalance, itemData._value) && itemData._owner != Account" ng-click="surface()" class="custom-modal disabled custom-button-green waves-effect waves-green btn-flat">
+				Not enough orth
+			</a>
+			<a href="#!" ng-show="itemData._owner == Account" ng-click="removeItem(onViewIndex)" class="custom-modal custom-button-blue modal-close waves-effect waves-green btn-flat">
+				Remove Listing
+			</a>
 		</div>
 	</div>
 
@@ -196,7 +261,7 @@
 				<div id="inventory-content" class="content">
 					<div class="inventory-item" ng-repeat="item in marketItems">
 						<img src="/img/blaze.png" alt="" class="circle responsive-img">
-						<div class="item-data">
+						<div class="item-data" ng-click="viewItem($index)">
 							<span class="name"><span class="blue tooltipped" data-position="bottom" data-tooltip="You own this item."
 								 ng-show="item._owner == Account">My</span> {{item._name}} <span class="legendary">{{item._value}} Orth</span></span>
 							<span class="description">
@@ -248,7 +313,8 @@
 							<div class="col s6">
 								<span class="uploadError" ng-hide="uploadable">Error: {{uploadStatus}}</span>
 								<span class="uploadClear" ng-show="uploadable">Status: {{uploadStatus}}</span>
-								<a class="custom-button-green fluid waves-effect btn-flat" ng-class="{disabled: !itemCost}" ng-click="submitItem()" style="margin: auto;">
+								<a class="custom-button-green fluid waves-effect btn-flat" ng-class="{disabled: !itemCost}" ng-click="submitItem()"
+								 style="margin: auto;">
 									Submit
 								</a>
 							</div>
@@ -313,7 +379,9 @@
 
 	<script type="text/javascript" src="js/web3.min.js"></script>
 	<script type="text/javascript" src="js/materialize.min.js"></script>
+	<script type="text/javascript" src="js/MarketABI.js"></script>
 	<script type="text/javascript" src="js/orth.js"></script>
+	<script type="text/javascript" src="js/download.js"></script>
 </body>
 
 </html>
