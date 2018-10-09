@@ -2,13 +2,15 @@
 <html>
 
 <head>
-	<title>Orth Coin Repository</title>
+	<title>Orth Market Repository</title>
 	<link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
 	<!--Import Google Icon Font-->
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-animate.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script src="https://unpkg.com/ipfs/dist/index.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
 	<!--Import materialize.css-->
 	<link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection" />
 	<link type="text/css" rel="stylesheet" href="css/orth.css" />
@@ -87,13 +89,13 @@
 					</div>
 				</div>
 				<div class="custom-modal modal-footer">
-					<a href="#!" ng-click="purchaseOrth();$('#purchase-confirm').modal('close');" class="custom-modal custom-button-green waves-effect waves-green btn-flat">Yes</a>
+					<a href="#!" ng-click="purchaseOrth();" class="custom-modal custom-button-green waves-effect waves-green btn-flat">Yes</a>
 					<a href="#!" class="custom-modal custom-button-blue modal-close waves-effect waves-green btn-flat">Cancel</a>
 				</div>
 			</div>
 
 			<div id="purchase-orth-panel" class="panel">
-				<div id="purchase-orth-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+				<div id="purchase-orth-header" class="header context-menu-panel collapsed" onclick='$(this).next().slideToggle()'>
 					<span>Purchase Orth</span>
 				</div>
 				<div id="purchase-orth-content" class="content">
@@ -108,8 +110,8 @@
 				</div>
 			</div>
 
-			<div id="admin-panel" class="panel">
-				<div id="admin-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+			<div id="admin-panel" class="panel" ng-show="Account == Administrator">
+				<div id="admin-header" class="header context-menu-panel collapsed" onclick='$(this).next().slideToggle()'>
 					<span>Admin Panel</span>
 				</div>
 				<div id="admin-content" class="content">
@@ -125,7 +127,7 @@
 								<span class="label">Signature</span>
 								<input type="text" ng-model="registerSignature"></input>
 							</div>
-							<a class="custom-button-green fluid waves-effect modal-trigger btn-flat" href="#surface-confirm-jp" style="margin: auto;">
+							<a class="custom-button-green fluid waves-effect btn-flat" ng-click="AdminRegisterItem()" style="margin: auto;">
 								Register
 							</a>
 						</div>
@@ -195,7 +197,8 @@
 					<div class="inventory-item" ng-repeat="item in marketItems">
 						<img src="/img/blaze.png" alt="" class="circle responsive-img">
 						<div class="item-data">
-							<span class="name">{{item._name}} <span class="legendary">{{item._value}} Orth</span></span>
+							<span class="name"><span class="blue tooltipped" data-position="bottom" data-tooltip="You own this item."
+								 ng-show="item._owner == Account">My</span> {{item._name}} <span class="legendary">{{item._value}} Orth</span></span>
 							<span class="description">
 								<p>Signature:<code>{{item._signature}}</code></br>
 									Owner: <code>{{item._owner}}</code></br>
@@ -206,6 +209,53 @@
 						</div>
 					</div>
 
+				</div>
+			</div>
+
+			<div id="submit-panel" class="panel" draggable="true">
+				<div id="submit-header" class="header context-menu-panel collapsed" onclick='$(this).next().slideToggle()'>
+					<span>Sell an Item</span>
+				</div>
+				<div id="submit-content" class="content">
+					<p>Make sure that you check out the item through Reg by running <code>block.checkout [item index]</code>.</p>
+					<form id="submitNewItem" action="#">
+						<div class="file-field input-field row">
+							<div class="btn custom-button-green ">
+								<span>File</span>
+								<input type="file" ng-model="dataUploadPath" onchange="angular.element(this).scope().loadJsonData()">
+							</div>
+							<div class="file-path-wrapper">
+								<input class="file-path validate" type="text">
+							</div>
+						</div>
+					</form>
+					<div ng-show="itemToUpload">
+						<div ng-show="uploadable" class="content">
+							<div class="field">
+								<span class="label">Signature</span>
+								<span class="value">{{itemToUpload.signature}}</span>
+							</div>
+							<div class="field" ng-repeat="(k, v) in itemToUpload.json">
+								<span class="label">{{k}}</span>
+								<span class="value">{{v}}</span>
+							</div>
+						</div>
+						<div class="row">
+							<div class="input-field col s6">
+								<input placeholder="Value in Orth" id="cost" type="number" ng-model="itemCost" class="validate">
+								<label for="first_name">Cost</label>
+							</div>
+							<div class="col s6">
+								<span class="uploadError" ng-hide="uploadable">Error: {{uploadStatus}}</span>
+								<span class="uploadClear" ng-show="uploadable">Status: {{uploadStatus}}</span>
+								<a class="custom-button-green fluid waves-effect btn-flat" ng-class="{disabled: !itemCost}" ng-click="submitItem()" style="margin: auto;">
+									Submit
+								</a>
+							</div>
+
+						</div>
+
+					</div>
 				</div>
 			</div>
 
@@ -263,7 +313,6 @@
 
 	<script type="text/javascript" src="js/web3.min.js"></script>
 	<script type="text/javascript" src="js/materialize.min.js"></script>
-	<script type="text/javascript" src="js/web3.min.js"></script>
 	<script type="text/javascript" src="js/orth.js"></script>
 </body>
 

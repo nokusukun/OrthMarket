@@ -353,8 +353,7 @@ a, button {
     box-shadow: inset 0px 1px 0px 1px hsla(198, 76%, 65%, 1);
 }
 
-.abyss {
-}
+
 
 .inventory-item {
 	margin-top: .2rem;
@@ -459,6 +458,17 @@ a, button {
     color: white;
 }
 
+.item-data .name .blue{
+    font-size: 10px;
+    padding-left: .5rem;
+    padding-right: .5rem;
+    padding-top: .2rem;
+    padding-bottom: .2rem;
+    border-radius: 4px;
+    background: rgb(209, 133, 19);
+    color: white;
+}
+
 .field input {
 	font-family: monospace;
     font-size: initial!important;
@@ -474,5 +484,5 @@ a, button {
 .content p {
 	font-size: smaller;
 	color: rgb(121, 122, 126);
-	margin-top: -.1rem;
+	margin-top: .3rem;
 }
