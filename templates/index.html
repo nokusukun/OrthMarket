@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Orth Coin Repository</title>
+	<link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+	<!--Import Google Icon Font-->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-animate.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<!--Import materialize.css-->
+	<link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection" />
+	<link type="text/css" rel="stylesheet" href="css/orth.css" />
+	<!--Let browser know website is optimized for mobile-->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<style type="text/css">
+		body {
+			font-family: 'tetsu', serif;
+		}
+	</style>
+</head>
+
+<body ng-app="orthmarket" ng-controller="orthmarket-ctrl">
+
+	<div id="surface-confirm" class="custom-modal modal">
+		<div class="modal-content">
+			<h4 class="header"> Notification</h4>
+			<div class="content">
+				<p>Are you sure you want to surface? You still have <b class="green-text">1,203</b> stamina left.</p>
+			</div>
+		</div>
+		<div class="custom-modal modal-footer">
+			<a href="#!" ng-click="surface()" class="custom-modal custom-button-green waves-effect waves-green btn-flat">Yes</a>
+			<a href="#!" class="custom-modal custom-button-blue modal-close waves-effect waves-green btn-flat">Continue</a>
+		</div>
+	</div>
+
+	<div id="surface-success" class="custom-modal modal">
+		<div class="modal-content">
+			<h4 class="header">Purchase Orth</h4>
+			<div class="content">
+			</div>
+		</div>
+		<div class="custom-modal modal-footer">
+			<a href="#!" onclick="$('.modal').modal('close');" class="custom-modal custom-button-green modal-close waves-effect waves-green btn-flat">Horray!</a>
+		</div>
+	</div>
+
+	<div class="row main-divider">
+		<div id="left-panel" class="col s12 m3 left-panel superpanel">
+
+			<div id="info-panel" class="panel">
+				<div id="info-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+					<span>My Account</span>
+				</div>
+				<div id="info-content" class="content">
+					<div class="field-image">
+						<div class="value">
+							<div class="field">
+								<span class="label">Address</span>
+								<span class="value truncate" style="margin-left:1rem;">
+									<code class="truncate">{{Account}}</code>
+								</span>
+							</div>
+							<div class="field">
+								<span class="label">Balance</span>
+								<span class="value">{{accountBalance}} Orth</span>
+							</div>
+						</div>
+						<span class="content-divider">Actions</span>
+						<div class="button-array">
+
+							<a class="custom-button-blue fluid waves-effect modal-trigger btn-flat" href="#surface-confirm-jp" style="margin: auto;">
+								Sell Item
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="purchase-confirm" class="custom-modal modal">
+				<div class="modal-content">
+					<h4 class="header"> Notification</h4>
+					<div class="content">
+						<p>Are you sure you want to purchase {{buyOrthAmmount}} Orth for {{costInEther}} Ether?</p>
+					</div>
+				</div>
+				<div class="custom-modal modal-footer">
+					<a href="#!" ng-click="purchaseOrth();$('#purchase-confirm').modal('close');" class="custom-modal custom-button-green waves-effect waves-green btn-flat">Yes</a>
+					<a href="#!" class="custom-modal custom-button-blue modal-close waves-effect waves-green btn-flat">Cancel</a>
+				</div>
+			</div>
+
+			<div id="purchase-orth-panel" class="panel">
+				<div id="purchase-orth-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+					<span>Purchase Orth</span>
+				</div>
+				<div id="purchase-orth-content" class="content">
+					<p>Enter the amount of orth you want to purchase.</br>
+						1 Orth = 0.0001 Ether
+					</p>
+					<input type="number" ng-model="buyOrthAmmount" ng-change="calculateEtherCost()"></input>
+					<p>Cost: {{costInEther || 0}} Ether</p>
+					<a class="custom-button-green fluid waves-effect modal-trigger btn-flat" href="#purchase-confirm" style="margin: auto;">
+						Purchase Orth
+					</a>
+				</div>
+			</div>
+
+			<div id="admin-panel" class="panel">
+				<div id="admin-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+					<span>Admin Panel</span>
+				</div>
+				<div id="admin-content" class="content">
+					<div class="field-image">
+
+						<span class="content-divider">Register Item Ownership</span>
+						<div class="value">
+							<div class="field">
+								<span class="label">Address</span>
+								<input type="text" ng-model="registerAddress"></input>
+							</div>
+							<div class="field">
+								<span class="label">Signature</span>
+								<input type="text" ng-model="registerSignature"></input>
+							</div>
+							<a class="custom-button-green fluid waves-effect modal-trigger btn-flat" href="#surface-confirm-jp" style="margin: auto;">
+								Register
+							</a>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+
+			<!--
+			<div id="stat-panel" class="panel">
+				<div id="stat-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+					<span>キャラの統計</span>
+				</div>
+				<div id="stat-content" class="content">
+					<div class="field">
+						<span class="label">スタミナ</span>
+						<span class="value"><span class="yellow-text text-darken-4">1,203</span> / 5,000</span>
+					</div>
+					<div class="field">
+						<span class="label">スピード</span>
+						<span class="value">100</span>
+					</div>
+					<div class="field">
+						<span class="label">検出</span>
+						<span class="value">100</span>
+					</div>
+					<div class="field">
+						<span class="label">アタック</span>
+						<span class="value">100</span>
+					</div>
+					<div class="field">
+						<span class="label">レジスト</span>
+						<span class="value">100</span>
+					</div>
+					<span class="content-divider">アクション</span>
+					<div class="button-array">
+						<a class="custom-button-blue fluid waves-effect modal-trigger btn-flat" href="#surface-confirm-jp" style="margin: auto;">
+							Inventory
+						</a>
+						<a class="custom-button-blue fluid waves-effect modal-trigger btn-flat" href="#surface-confirm-jp" style="margin: auto;">
+							Equipment
+						</a>
+					</div>
+				</div>
+			</div>-->
+
+		</div>
+
+		<div id="center-panel" class="col s12 m6 center-panel superpanel">
+			<!--
+			<div id="map-panel" class="panel">
+				<div id="map-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+					<span>Map</span>
+				</div>
+				<div id="map-content" class="content">
+					<div class="abyss">
+						<img src="/img/layer1.png" class="responsive-img" style="filter: blur(5px);">
+					</div>
+				</div>
+			</div>-->
+			<div id="inventory-panel" class="panel" draggable="true">
+				<div id="inventory-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+					<span>Items for Sale</span>
+				</div>
+				<div id="inventory-content" class="content">
+					<div class="inventory-item" ng-repeat="item in marketItems">
+						<img src="/img/blaze.png" alt="" class="circle responsive-img">
+						<div class="item-data">
+							<span class="name">{{item._name}} <span class="legendary">{{item._value}} Orth</span></span>
+							<span class="description">
+								<p>Signature:<code>{{item._signature}}</code></br>
+									Owner: <code>{{item._owner}}</code></br>
+									Data: {{item._d}}
+								</p>
+							</span>
+
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+
+		<div id="right-panel" class="col s12 m3 right-panel superpanel">
+			<!--
+			<div id="abyss-panel" class="panel">
+				<div id="abyss-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+					<span>Abyss</span>
+				</div>
+				<div id="abyss-content" class="content">
+					<div class="field">
+						<span class="label">Status</span>
+						<span class="value">Delving</span>
+					</div>
+					<div class="field">
+						<span class="label">Destination</span>
+						<span class="value"><code>l1.1</code> First Layer - The Edge</span>
+					</div>
+					<div class="field">
+						<span class="label">Time To Arrive</span>
+						<span class="value">10 Minutes</span>
+					</div>
+					<span class="content-divider">アクション</span>
+					<div class="valign-wrapper">
+
+						<a class="custom-button-green fluid waves-effect modal-trigger btn-flat" href="#surface-confirm-jp" style="margin: auto;">
+							Surface
+						</a>
+					</div>
+				</div>
+			</div>
+			-->
+			<div id="notification-panel" class="panel">
+				<div id="notification-header" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+					<span>Notifications</span>
+				</div>
+				<div id="notification-content" class="content">
+					<ul class="collection">
+						<li class="notification collection-item" ng-repeat="notification in notifications">
+							<span class="title">{{notification.title}}</span>
+							<p> {{notification.content}}
+							</p>
+							<a href="#!" class="secondary-content" ng-click="dismiss($index)"><i class="material-icons">close</i></a>
+						</li>
+					</ul>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<script type="text/javascript" src="js/web3.min.js"></script>
+	<script type="text/javascript" src="js/materialize.min.js"></script>
+	<script type="text/javascript" src="js/web3.min.js"></script>
+	<script type="text/javascript" src="js/orth.js"></script>
+</body>
+
+</html>
