@@ -40,6 +40,15 @@ contract OrthMarket {
         owner = administrator;
     }
     
+    function contractBalance() public view returns(uint balance){
+        balance = address(this).balance;
+    }
+    
+    function withdraw(uint ammount) public {
+        require(msg.sender == administrator, "You don't own this contract.");
+        msg.sender.transfer(ammount);
+    }
+    
     function buyOrth() public payable inlimits{
         Balance[msg.sender] += msg.value / 1 finney;
     }

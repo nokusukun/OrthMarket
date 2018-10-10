@@ -12,7 +12,7 @@ app.controller("orthmarket-ctrl", function ($scope, $http) {
 	try {
 		// Hacky way to preserve the metamask provider to web3 1.0
 		web3 = new Web3(web3.currentProvider);
-		MarketAddress = "0xebd6153141d41e9f3ccfe8f19396afd18da829f8";
+		MarketAddress = "0x7663b4eea62a4f164682f461c56766f30fbac8e1";
 		Market = new web3.eth.Contract(MarketABI, MarketAddress);
 		$scope.noMetaMask = false;
 	} catch {
@@ -20,6 +20,7 @@ app.controller("orthmarket-ctrl", function ($scope, $http) {
 		notify("Error", "Metamask is not installed. Please install to continue.")
 	}
 
+	const oneEth = 1000000000000000000;
 	// Retrieves account.
 	console.log("Starting")
 	web3.eth.getAccounts((_, x) => {
@@ -31,6 +32,7 @@ app.controller("orthmarket-ctrl", function ($scope, $http) {
 		$scope.getBalance();
 		setInterval(() => {
 			$scope.getBalance();
+
 		}, 5000);
 	});
 
@@ -41,6 +43,12 @@ app.controller("orthmarket-ctrl", function ($scope, $http) {
 		$scope.Administrator = admin;
 		$scope.$apply();
 	});
+
+	if ($scope.Administrator == $scope.Account) {
+		setInterval(() => {
+			$scope.getContractBalance();
+		}, 5000);
+	}
 
 	repoPath = 'ipfs-1111'
 	ipfs = new Ipfs({ repo: repoPath })
@@ -157,6 +165,8 @@ app.controller("orthmarket-ctrl", function ($scope, $http) {
 		if ($scope.marketItems[index]._owner != $scope.Account) {
 			M.toast({ html: 'You\'re not the owner of the item you want to remove.', classes: 'panel' });
 		}
+
+		notify("Item Removal", "Sending removal request.");
 		Market.methods.removeItem(index).send({ from: $scope.Account })
 			.on("receipt", success => {
 				notify("Item Removal", "Successfully sent request to remove listing.");
@@ -168,7 +178,7 @@ app.controller("orthmarket-ctrl", function ($scope, $http) {
 	}
 
 	$scope.purchaseOrth = function () {
-		oneEth = 1000000000000000000
+		notify("Purchase Orth", "Sending purchase request.");
 		Market.methods.buyOrth().send({
 			from: $scope.Account,
 			value: $scope.costInEther * oneEth
@@ -188,6 +198,7 @@ app.controller("orthmarket-ctrl", function ($scope, $http) {
 		item = $scope.itemData;
 		data = $scope.itemData.data;
 		index = $scope.onViewIndex;
+		notify("Purchase Item", "Sending purchase request.");
 		Market.methods.buyItem(index).send({ from: $scope.Account })
 			.on('receipt', (r) => {
 				notify("Purchase Successful", "You have successfully purchased " + item._name + ". The data has been downloaded, do not lose this.");
@@ -216,6 +227,8 @@ app.controller("orthmarket-ctrl", function ($scope, $http) {
 	$scope.AdminRegisterItem = function () {
 		address = $scope.registerAddress;
 		signature = $scope.registerSignature;
+
+		notify("Admin Register", "Sending bind request.");
 		Market.methods.registerItem(address, signature).send({ from: $scope.Account })
 			.on('receipt', e => {
 				notify("Item Register", "Successfully binded " + signature + " to " + address + ".");
@@ -225,10 +238,31 @@ app.controller("orthmarket-ctrl", function ($scope, $http) {
 			});
 	}
 
-	$scope.utilCanAfford = function (a, b){
+	$scope.getContractBalance = function () {
+		Market.methods.contractBalance().call().then(result => {
+			console.log(result);
+			$scope.contractBalance = result / oneEth;
+		})
+	}
+
+	$scope.AdminWithdraw = function () {
+		notify("Admin Withdrawal", "Sending withdraw request.");
+		ammount = $scope.withdrawAmmount * oneEth;
+		console.log("Withdrawing: ", ammount);
+		Market.methods.withdraw(ammount.toString()).send({ from: $scope.Account })
+			.on("receipt", success => {
+				notify("Admin Withdrawal", "Successfully withdrawed ammount.");
+				$scope.populateMarket();
+			})
+			.on("error", e => {
+				notify("Error: Admin Withdrawal", e);
+			});
+	}
+
+	$scope.utilCanAfford = function (a, b) {
 		return Number.parseInt(a) >= Number.parseInt(b);
 	}
-	$scope.utilCantAfford = function (a, b){
+	$scope.utilCantAfford = function (a, b) {
 		return Number.parseInt(a) < Number.parseInt(b);
 	}
 
@@ -260,4 +294,5 @@ $(document).ready(function () {
 	}, 1000);
 
 	$('.collapsed').next().slideToggle();
+	$('#loading').slideToggle();
 });

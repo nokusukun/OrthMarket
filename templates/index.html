@@ -24,6 +24,18 @@
 </head>
 
 <body ng-app="orthmarket" ng-controller="orthmarket-ctrl">
+	<div id="loading" class="no-meta-mask valign-wrapper">
+		<div class="panel" style="max-width: 50vw; margin: auto;">
+			<div id="" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
+				<span>Orth Market</span>
+			</div>
+			<div id="" class="content">
+				<p>
+					Initalizing app...
+				</p>
+			</div>
+		</div>
+	</div>
 	<div ng-show="noMetaMask" class="no-meta-mask valign-wrapper">
 		<div class="panel" style="max-width: 50vw; margin: auto;">
 			<div id="" class="header context-menu-panel" onclick='$(this).next().slideToggle()'>
@@ -91,10 +103,12 @@
 			<a href="#!" ng-click="downloadJson(itemData)" class="custom-modal custom-button-blue modal-close waves-effect waves-green btn-flat">
 				Download
 			</a>
-			<a href="#!" ng-show="utilCanAfford(accountBalance, itemData._value) && itemData._owner != Account" ng-click="purchaseItem()" class="custom-modal custom-button-green waves-effect waves-green btn-flat">
+			<a href="#!" ng-show="utilCanAfford(accountBalance, itemData._value) && itemData._owner != Account" ng-click="purchaseItem()"
+			 class="custom-modal custom-button-green waves-effect waves-green btn-flat">
 				Purchase (<b>{{itemData._value}} Orth</b>)
 			</a>
-			<a href="#!" ng-show="utilCantAfford(accountBalance, itemData._value) && itemData._owner != Account" ng-click="surface()" class="custom-modal disabled custom-button-green waves-effect waves-green btn-flat">
+			<a href="#!" ng-show="utilCantAfford(accountBalance, itemData._value) && itemData._owner != Account" ng-click="surface()"
+			 class="custom-modal disabled custom-button-green waves-effect waves-green btn-flat">
 				Not enough orth
 			</a>
 			<a href="#!" ng-show="itemData._owner == Account" ng-click="removeItem(onViewIndex)" class="custom-modal custom-button-blue modal-close waves-effect waves-green btn-flat">
@@ -180,6 +194,19 @@
 					<span>Admin Panel</span>
 				</div>
 				<div id="admin-content" class="content">
+
+					<span class="content-divider">Contract Funds</span>
+					<div class="field">
+						<span class="label">Contract Balance</span>
+						<span class="value">{{contractBalance}} Ether</span>
+					</div>
+					<div class="field">
+						<span class="label">Withdraw Ammount</span>
+						<input type="number" ng-model="withdrawAmmount"></input>
+					</div>
+					<a class="custom-button-green fluid waves-effect btn-flat" ng-click="AdminWithdraw()" style="margin: auto;">
+						Withdraw to Account
+					</a>
 					<div class="field-image">
 
 						<span class="content-divider">Register Item Ownership</span>
